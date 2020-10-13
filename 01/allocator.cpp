@@ -6,75 +6,40 @@ using namespace std;
 	Allocator::Allocator()
 	{
 		allocator = nullptr;
-		flag = true;
 		offset = 0;
+		max_size = 0;
 	}
 
 	void Allocator::makeAllocator(size_t maxSize)
 	{
-		try
+		if (allocator)
 		{
-			if (flag)
-			{
-				allocator = new char[maxSize];
-				max_size = maxSize;
-				flag = false;
-			}
-			else
-			{
-				throw "I have already allocate\n";
-			}
+			delete []allocator;
 		}
-
-		catch (char const* str)
-		{
-			cout << str;
-		}
+		allocator = new char[maxSize / sizeof(char)];
+		max_size = maxSize;
+		offset = 0;
 	}
 
 	char* Allocator::alloc(size_t size)
 	{
-		try
+		if ((size + offset) <= max_size)
 		{
-			if (flag)
-			{
-				throw "Allocate at first\n";
-			}
-			if ((size + offset) <= max_size)
-			{
-				offset += size;
-				return (allocator + offset - size);
-			}
-			return nullptr;
+			offset += size;
+			return (allocator + (offset - size) / sizeof(char));
 		}
-
-		catch (char const* str)
-		{
-			cout << str;
-			return nullptr;
-		}
+		return nullptr;
 	}
 
 	void Allocator::reset()
 	{
-		try
-		{
-			if (flag)
-			{
-				throw "Allocate,then reset\n";
-			}
-			offset = 0;
-		}
-
-		catch (char const* str)
-		{
-			cout << str;
-		}
-	};
+		offset = 0;
+	}
 
 	Allocator::~Allocator()
 	{
 		if (allocator != nullptr)
 			delete []allocator;
+			allocator = nullptr;
 	}
 

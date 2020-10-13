@@ -8,7 +8,6 @@ class Allocator
 	char* allocator;
 	size_t offset;
 	size_t max_size;
-	bool flag;
 
 public:
 	Allocator();
