@@ -7,8 +7,8 @@ void test_1()
 {
 	Allocator allocator;
 	allocator.makeAllocator(sizeof(char) * 10);
-	char* memory_1 = allocator.alloc(sizeof(char) * 5);
-	char* memory_2 = allocator.alloc(sizeof(char) * 5);
+	allocator.alloc(sizeof(char) * 5);
+	allocator.alloc(sizeof(char) * 5);
 	allocator.reset();
 }
 
@@ -22,7 +22,7 @@ void test_2()
 void test_3()
 {
 	Allocator allocator;
-	char* memory_1 = allocator.alloc(sizeof(char) * 5);
+	allocator.alloc(sizeof(char) * 5);
 }
 
 void test_4()
@@ -35,9 +35,9 @@ void test_5()
 {
 	Allocator allocator;
 	allocator.makeAllocator(sizeof(char) * 10);
-	char* memory_1 = allocator.alloc(sizeof(char) * 5);
+	allocator.alloc(sizeof(char) * 5);
 	allocator.reset();
-	char* memory_2 = allocator.alloc(sizeof(char) * 5);
+	allocator.alloc(sizeof(char) * 5);
 }
 
 int main()
