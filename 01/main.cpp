@@ -30,5 +30,6 @@ int main()
 {
 	test_1();
 	test_2();
+	cout << "Success \n\n";
 	return 0;
 }
