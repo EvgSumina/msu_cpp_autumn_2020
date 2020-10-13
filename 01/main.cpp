@@ -11,19 +11,19 @@ void test_1()
 	assert(nullptr != allocator.alloc(10 * sizeof(char)));
 	assert(nullptr == allocator.alloc(1 * sizeof(char)));
 	allocator.reset();
-    assert(nullptr != allocator.alloc(5 * sizeof(char)));
-    assert(nullptr != allocator.alloc(5 * sizeof(char)));
-    assert(nullptr == allocator.alloc(1 * sizeof(char)));
+	assert(nullptr != allocator.alloc(5 * sizeof(char)));
+	assert(nullptr != allocator.alloc(5 * sizeof(char)));
+	assert(nullptr == allocator.alloc(1 * sizeof(char)));
 }
 
 void test_2()
 {
-    Allocator allocator;
-    allocator.makeAllocator(10 * sizeof(char));
-    assert(nullptr == allocator.alloc(11 * sizeof(char)));
-    assert(nullptr != allocator.alloc(5 * sizeof(char)));
-    assert(nullptr != allocator.alloc(5 * sizeof(char)));
-    assert(nullptr == allocator.alloc(1 * sizeof(char)));
+	Allocator allocator;
+	allocator.makeAllocator(10 * sizeof(char));
+	assert(nullptr == allocator.alloc(11 * sizeof(char)));
+	assert(nullptr != allocator.alloc(5 * sizeof(char)));
+	assert(nullptr != allocator.alloc(5 * sizeof(char)));
+	assert(nullptr == allocator.alloc(1 * sizeof(char)));
 }
 
 int main()
