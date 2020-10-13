@@ -39,7 +39,9 @@ using namespace std;
 	Allocator::~Allocator()
 	{
 		if (allocator != nullptr)
+		{
 			delete []allocator;
-			allocator = nullptr;
+		}
+		allocator = nullptr;
 	}
 
