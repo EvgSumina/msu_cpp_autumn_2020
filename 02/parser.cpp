@@ -41,17 +41,21 @@ string TokenParser::register_token(const string & token)
 	if (token != "")
 	{
 		bool flag = true;
-		for (unsigned int i = 0; i < token.length(); i++)
+		unsigned int i = 0;
+		while ((i < token.length()) && flag)
+		{
 			flag = isdigit(token[i]);
-		
+			i++;
+		}
 		if (CallNum && flag) 
 		{
 			return CallNum(stoi(token));
 		}
-		if (CallStr) 
+		if ((!flag) && CallStr) 
 		{
 			return CallStr(token);
 		}
+		return "Default function is missing\n";
 	}
 	return token;
 }
@@ -65,7 +69,7 @@ string TokenParser::parse(const string& text)
 	}
 	else
 	{
-		return result;
+		result += "Defaul function for start is missing\n";
 	}
 	string token = "";
 	unsigned int i = 0;
@@ -89,7 +93,7 @@ string TokenParser::parse(const string& text)
 	}
 	else
 	{
-		return "";
+		result += "Defaul function for finish is missing\n";
 	}
 	return result;
 }
