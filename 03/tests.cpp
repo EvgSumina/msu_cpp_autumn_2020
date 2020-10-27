@@ -73,6 +73,20 @@ int main()
 	assert(matrix == matrix_2);
 	assert(matrix != matrix_3);
 
+	matrix = matrix;
+	assert(matrix[0][2] == 6);
+
+	Matrix matrix_4(3, 2);
+	do
+	{
+		try { 
+			matrix_4 = matrix;
+		} 
+		catch (const out_of_range&) { break ; } 
+		catch (...) { cout << "error \n"; } 
+	} while(0);
+	
+
 	cout << matrix;
 	cout << "Success!\n";
 

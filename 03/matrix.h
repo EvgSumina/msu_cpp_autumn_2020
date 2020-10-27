@@ -30,6 +30,7 @@ class Matrix
 		const Array operator [](size_t) const;
 		Matrix& operator *=(int);
 		Matrix operator +(const Matrix&) const;
+		Matrix& operator =(const Matrix&);
 		bool operator ==(const Matrix&) const;
 		bool operator !=(const Matrix&) const;
 		friend ostream& operator <<(ostream&, const Matrix&);

@@ -36,8 +36,7 @@ Matrix::Matrix(size_t row, size_t col): cols(col), rows(row)
 }
 
 
-Matrix::Matrix(const Matrix& matr): cols(matr.getCols()), rows(matr.getRows())
-{
+Matrix::Matrix(const Matrix& matr): cols(matr.getCols()), rows(matr.getRows()) {
 	size_t Rows = matr.getRows();
 	size_t Cols = matr.getCols();
 	matrix = new int*[Rows];
@@ -132,6 +131,25 @@ bool Matrix::operator ==(const Matrix& SecondMatrix) const
 }
 
 
+Matrix& Matrix::operator =(const Matrix& SecondMatrix)
+{
+	if (this == &SecondMatrix) 
+		return *this;
+	if ((rows != SecondMatrix.getRows()) || (cols != SecondMatrix.getCols()))
+	{
+		throw out_of_range("Input arrays must have same dimensions");
+	}
+	for (unsigned int i = 0; i < rows; i++)
+	{
+		for(unsigned int j = 0; j < cols; j++)
+		{
+			matrix[i][j] = SecondMatrix[i][j];
+		}
+	}
+	return *this;
+}
+
+
 bool Matrix::operator !=(const Matrix& SecondMatrix) const
 {
 	return !(*this == SecondMatrix);
@@ -142,9 +160,9 @@ Matrix::~Matrix()
 {
 	for (size_t i = 0; i < rows; i++)
 	{
-		free(matrix[i]);
+		delete matrix[i];
 	}
-	free(matrix);
+	delete matrix;
 }
 
 
