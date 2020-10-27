@@ -73,7 +73,8 @@ int main()
 	assert(matrix == matrix_2);
 	assert(matrix != matrix_3);
 
-	cout << "success!\n";
+	cout << matrix;
+	cout << "Success!\n";
 
 	return 0;
 }
