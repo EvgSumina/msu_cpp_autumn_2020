@@ -25,6 +25,7 @@ class BigInt
 		void setInt(size_t);
 		BigInt(BigInt&&);
 		BigInt& operator =(const BigInt&);
+		BigInt & operator =(BigInt &&);
 		friend ostream & operator <<(ostream&, const BigInt&);
 		BigInt operator-() const;
 		char& operator[](size_t);

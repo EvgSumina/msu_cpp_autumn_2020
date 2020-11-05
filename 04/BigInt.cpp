@@ -24,7 +24,6 @@ BigInt::BigInt(int num)
 
 BigInt::BigInt(const BigInt& CopyInt): IntSize(CopyInt.getSize()), IsNeg(CopyInt.getFlag())
 {
-	IntSize = CopyInt.getSize();
 	Int = new char[IntSize];
 	copy(CopyInt.getInt(), CopyInt.getInt() + IntSize, Int);
 	(*this).del_zero();
@@ -116,6 +115,20 @@ BigInt& BigInt::operator=(const BigInt& copied)
 	copy(copied.Int, copied.Int + IntSize, Int);
 	return *this;
 }
+
+
+BigInt & BigInt::operator =(BigInt && moved)
+{
+	if(this == &moved)
+		return *this;
+	IntSize = move(moved.getSize());
+	Int = moved.getInt();
+	IsNeg = move(moved.getFlag());
+	moved.Int = nullptr;
+	moved.setSize(0);
+	return *this;
+}
+	
 
 ostream& operator<<(ostream& out, const BigInt& myInt)
 {
