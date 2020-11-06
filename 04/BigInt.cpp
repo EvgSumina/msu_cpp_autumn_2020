@@ -91,7 +91,10 @@ void BigInt::setInt(size_t size)
 {
 	delete []Int;
 	IntSize = size;
-	Int = new char[size];
+	if (size == 0)
+		Int = nullptr;
+	else
+		Int = new char[size];
 }
 
 
@@ -121,11 +124,12 @@ BigInt & BigInt::operator =(BigInt && moved)
 {
 	if(this == &moved)
 		return *this;
-	IntSize = move(moved.getSize());
+	IntSize = moved.getSize();
+	IsNeg = moved.getFlag();
+	delete []Int;
 	Int = moved.getInt();
-	IsNeg = move(moved.getFlag());
 	moved.Int = nullptr;
-	moved.setSize(0);
+	moved.IntSize = 0;
 	return *this;
 }
 	
