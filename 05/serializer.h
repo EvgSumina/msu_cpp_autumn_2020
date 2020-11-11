@@ -31,7 +31,7 @@ public:
 	template <class... ArgsT>
 	Error operator()(ArgsT&&... args)
 	{
-		return process(args...);
+		return process(forward<ArgsT>(args)...);
 	}
 
 	Error my_save(bool);
@@ -49,7 +49,7 @@ private:
 	{
 		if (my_save(value) == Error::CorruptedArchive)
 			return Error::CorruptedArchive;
-		process(args...);
+		process(forward<Args>(args)...);
 	}
 };
 
@@ -73,7 +73,7 @@ public:
 	template <class... ArgsT>
 	Error operator()(ArgsT&&... args)
 	{
-		return process(args...);
+		return process(forward<ArgsT>(args)...);
 	}
 
 	Error my_load(bool&);
@@ -91,6 +91,6 @@ private:
 	{
 		if (my_load(value) == Error::CorruptedArchive)
 			return Error::CorruptedArchive;
-		process(args...);
+		process(forward<Args>(args)...);
 	}
 };
