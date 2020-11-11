@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cstdio>
-#include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -34,22 +34,28 @@ public:
 		return process(forward<ArgsT>(args)...);
 	}
 
+private:
 	Error my_save(bool);
 	Error my_save(uint64_t);
 
-private:
 	template <class T>
-	Error process(T&& value)
+	Error my_save(T)
 	{
-		return my_save(value);
+		return Error::CorruptedArchive;
 	}
-
+	
 	template <class T, class... Args>
 	Error process(T&& value, Args&&... args)
 	{
 		if (my_save(value) == Error::CorruptedArchive)
 			return Error::CorruptedArchive;
-		process(forward<Args>(args)...);
+		return process(forward<Args>(args)...);
+	}
+	
+	template <class T>
+	Error process(T&& value)
+	{
+		return my_save(value);
 	}
 };
 
@@ -76,14 +82,14 @@ public:
 		return process(forward<ArgsT>(args)...);
 	}
 
+private:
 	Error my_load(bool&);
 	Error my_load(uint64_t&);
 
-private:
 	template <class T>
-	Error process(T&& value)
+	Error my_load(T&)
 	{
-		return my_load(value);
+		return Error::CorruptedArchive;
 	}
 
 	template <class T, class... Args>
@@ -91,6 +97,12 @@ private:
 	{
 		if (my_load(value) == Error::CorruptedArchive)
 			return Error::CorruptedArchive;
-		process(forward<Args>(args)...);
+		return process(forward<Args>(args)...);
+	}
+
+	template <class T>
+	Error process(T&& value)
+	{
+		return my_load(value);
 	}
 };
