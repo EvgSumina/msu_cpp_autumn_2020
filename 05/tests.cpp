@@ -39,6 +39,12 @@ int main()
 	assert(x.a == y.a);
 	assert(x.b == y.b);
 	assert(x.c == y.c);
+
+	Data z { 0, "lama", 0 };
+	const Error err_1 = deserializer.load(z);
+
+	assert(err_1 == Error::CorruptedArchive);
+
 	cout << "Success" << endl;
 	return 0;
 }
