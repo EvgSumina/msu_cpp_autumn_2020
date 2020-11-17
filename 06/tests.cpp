@@ -9,60 +9,60 @@ int main()
 	auto text = format("{1} + {1} = {0}", 2, "one");
 	assert(text == "one + one = 2");
 
+	bool error = false;
 	try
 	{
 		text = format("12} {0}", 1, 2);
 	}
-	catch(const std::logic_error& e)
+	catch(const ParenthesisError& e)
 	{
-		std::stringstream str;
-		str << e.what();
-		assert(str.str() == "Closing parenthesis error");
+		error = true;
 	}
+	assert(error == true);
 
+	error = false;
 	try
 	{
 		text = format("{}", 1, 2);
 	}
-	catch(const std::logic_error& e)
+	catch(const CountArgumentError& e)
 	{
-		std::stringstream str;
-		str << e.what();
-		assert(str.str() == "No argument error");
+		error = true;
 	}
+	assert(error == true);
 
+	error = false;
 	try
 	{
 		text = format("1 + 2 = {3}", 1, 2, 3);
 	}
-	catch(const std::logic_error& e)
+	catch(const CountArgumentError& e)
 	{
-		std::stringstream str;
-		str << e.what();
-		assert(str.str() == "Too many arguments");
+		error = true;
 	}
+	assert(error == true);
 
+	error = false;
 	try
 	{
 		text = format("{abs{0}", 1, 2);
 	}
-	catch(const std::logic_error& e)
+	catch(const WrongArgumentError& e)
 	{
-		std::stringstream str;
-		str << e.what();
-		assert(str.str() == "Wrong argument type");
+		error = true;
 	}
+	assert(error == true);
 
+	error = false;
 	try
 	{
 		text = format("{0}{", 1, 2);
 	}
-	catch(const std::logic_error& e)
+	catch(const ParenthesisError& e)
 	{
-		std::stringstream str;
-		str << e.what();
-		assert(str.str() == "No closing parenthesis error");
+		error = true;
 	}
+	assert(error == true);
 	
 	std::cout << "Success" << std::endl;
 	return 0;

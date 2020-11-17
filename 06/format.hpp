@@ -15,6 +15,11 @@ std::string to_str(T&& val)
 }
 
 
+struct CountArgumentError: public std::exception {};
+struct WrongArgumentError: public std::exception {};
+struct ParenthesisError: public std::exception {};
+
+
 template <class ... Args>
 std::string format(const std::string& str, Args&& ... args)
 {
@@ -38,7 +43,7 @@ std::string format(const std::string& str, Args&& ... args)
 			}
 			else if (c == '}')
 			{
-				throw std::logic_error("Closing parenthesis error");
+				throw ParenthesisError();
 			}
 			else
 			{
@@ -55,11 +60,12 @@ std::string format(const std::string& str, Args&& ... args)
 			{
 				if (buf.empty())
 				{
-					throw std::logic_error("No argument error");
+					throw CountArgumentError();
 				}
 				else if (std::stoi(buf) >= arg_len || std::stoi(buf) < 0)
 				{
-					throw std::logic_error("Too many arguments");
+					buf.clear();
+					throw CountArgumentError();
 				}
 				else
 				{
@@ -71,13 +77,14 @@ std::string format(const std::string& str, Args&& ... args)
 			}
 			else
 			{
-				throw std::logic_error("Wrong argument type");
+				buf.clear();
+				throw WrongArgumentError();
 			}
 		}
 	}
 	if (open_paren)
 	{
-		throw std::logic_error("No closing parenthesis error");
+		throw ParenthesisError();
 	}
 	return result;
 }
