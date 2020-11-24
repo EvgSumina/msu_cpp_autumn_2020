@@ -41,6 +41,6 @@ int main()
 	vec.clear();
 	assert(my_vector.size() == vec.size());
 
-	std::cout << "Success!" << std::endl;
+	std::cout << "Success!!!" << std::endl;
 	return 0;
 }

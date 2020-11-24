@@ -2,7 +2,6 @@
 #include <iostream>
 #include <memory>
 
-
 template <class T>
 class Allocator
 {
@@ -11,14 +10,10 @@ public:
 	T* allocate(size_t count)
 	{
 		T* allocator_data = static_cast <T*> (operator new[] (count* sizeof(T)));
-		if (allocator_data == nullptr) 
-		{
-			throw std::bad_alloc();
-		}
 		return allocator_data;
 	}
 
-	void deallocate(T* pointer, size_t count) noexcept
+	void deallocate(T* pointer, size_t count)
 	{
 		delete[] (pointer);
 	}
@@ -29,7 +24,7 @@ public:
 		new (ptr) T(std::forward<Args>(args)...);
 	}
 
-	void destroy(T *ptr) noexcept
+	void destroy(T *ptr)
 	{
 		ptr -> ~T();
 	}
@@ -126,19 +121,9 @@ public:
 template <class T, class Alloc = Allocator<T> >
 class Vector
 {
-	Alloc allocator_;
-	T *ptr_;
-	size_t size_;
-	size_t capacity_;
-
 public:
-	Vector(): allocator_(), ptr_{allocator_.allocate(5)}, capacity_(5), size_(0)
-	{
-	};
 
-	Vector(const Vector<T>& other): allocator_(), 
-									ptr_(allocator_.allocate(other.size_)), 
-									capacity_(other.size_)
+	Vector(const Vector<T>& other): allocator_(), ptr_(allocator_.allocate(other.size_)), capacity_(other.size_)
 	{
 		for (size_ = 0; size_ < other.size_; ++size_) 
 		{
@@ -146,9 +131,10 @@ public:
 		}
 	}
 
-	Vector(std::initializer_list<T> init): allocator_(), 
-										ptr_(allocator_.allocate(init.size())), 
-										size_{0}, capacity_{init.size()}
+	Vector(): allocator_(), ptr_(nullptr), size_(0), capacity_(0)
+	{}
+
+	Vector(std::initializer_list<T> init): allocator_(), ptr_(allocator_.allocate(init.size())), size_(0), capacity_(init.size())
 	{
 		for (const T& value: init) 
 		{
@@ -180,16 +166,10 @@ public:
 		}
 	}
 
-	template <class... Args>
- 	T& emplace_back(Args &&... args) 
+	template <class... ArgsT>
+	void emplace_back(ArgsT&& ... args)
 	{
-		if (size_ >= capacity_) 
-		{
-			reserve(size_ * 2);
-  		}
-		auto new_ptr = new (ptr_ + size_) T(std::move(args)...);
-  		++size_;
-  		return *new_ptr;
+		this->push_back(T(std::forward<ArgsT>(args)...));
 	}
 
 	void push_back(const T& value) 
@@ -201,6 +181,15 @@ public:
 		allocator_.construct(ptr_ + size_++, value);
 	}
 
+	void push_back(T&& value)
+	{
+		if (size_ >= capacity_)
+		{
+			reserve(size_ * 2);
+		}
+		ptr_[size_++] = std::move(value);
+    }
+
 
 	void pop_back() 
 	{
@@ -209,17 +198,17 @@ public:
 		allocator_.destroy(ptr_ + --size_);
 	}
 
-	bool empty() const noexcept 
+	bool empty() const 
 	{
 		return size_ == 0;
 	}
 
-	size_t size() const noexcept 
+	size_t size() const
 	{
 		return size_;
 	}
 
-	void clear() noexcept 
+	void clear()
 	{
 		for (; size_ > 0;)
 		{
@@ -227,22 +216,22 @@ public:
 		}
 	}
 
-	Iterator<T> begin() noexcept
+	Iterator<T> begin()
 	{
 		return Iterator<T>(ptr_);
 	}
 
-	std::reverse_iterator<Iterator<T>> rbegin() noexcept
+	std::reverse_iterator<Iterator<T>> rbegin()
 	{
 		return std::reverse_iterator<Iterator<T>>(end());
 	}
 
-	Iterator<T> end() noexcept
+	Iterator<T> end()
 	{
 		return Iterator<T>(ptr_ + size_);
 	}
 
-	std::reverse_iterator<Iterator<T>> rend() noexcept
+	std::reverse_iterator<Iterator<T>> rend()
 	{
 		return std::reverse_iterator<Iterator<T>>(begin());
 	}
@@ -291,5 +280,11 @@ public:
 		}
 		allocator_.deallocate(ptr_, capacity_);
 	}
+
+private:
+	Alloc allocator_;
+	T *ptr_;
+	size_t size_;
+	size_t capacity_;
 };
 	
