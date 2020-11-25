@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <initializer_list>
 
 template <class T>
 class Allocator
@@ -37,10 +38,7 @@ class Iterator: public std::iterator<std::random_access_iterator_tag, T>
 	T* ptr_;
 public:
 
-	Iterator(T* ptr) : 
-		ptr_(ptr)
-	{ 
-	};
+	Iterator(T* ptr): ptr_(ptr) {};
 
 	bool operator==(const Iterator<T>& other) 
 	{
@@ -123,6 +121,9 @@ class Vector
 {
 public:
 
+	Vector(): allocator_(), ptr_(nullptr), size_(0), capacity_(0)
+	{}
+
 	Vector(const Vector<T>& other): allocator_(), ptr_(allocator_.allocate(other.size_)), capacity_(other.size_)
 	{
 		for (size_ = 0; size_ < other.size_; ++size_) 
@@ -131,8 +132,13 @@ public:
 		}
 	}
 
-	Vector(): allocator_(), ptr_(nullptr), size_(0), capacity_(0)
-	{}
+	Vector(Vector&& other): size_(other.size()), capacity_(other.capacity()) 
+	{
+		other.size_ = 0;
+		other.capacity_ = 0;                                                  
+		ptr_ = allocator_.allocate(capacity_);
+		std::move(other.begin(), other.end(), begin());
+	}
 
 	Vector(std::initializer_list<T> init): allocator_(), ptr_(allocator_.allocate(init.size())), size_(0), capacity_(init.size())
 	{
@@ -140,6 +146,35 @@ public:
 		{
 			allocator_.construct(ptr_ + size_++, std::move(value));
 		}
+	}
+
+	Vector& operator=(const Vector& other) 
+	{
+		this -> ~Vector();
+		size_ = other.size();
+		capacity_ = other.capacity();
+		ptr_ = allocator_.allocate(capacity_);
+		std::copy(other.begin(), other.end(), begin());
+		return *this;
+	}
+
+	Vector& operator=(const Vector&& other) 
+	{
+		this -> ~Vector();
+		size_ = other.size();
+		capacity_ = other.capacity();
+		ptr_ = allocator_.allocate(capacity_);
+		std::move(other.begin(), other.end(), begin());
+		other.size_ = 0;
+		other.capacity_ = 0;
+		return *this;
+	}
+
+	Vector& operator=(std::initializer_list<T> init) 
+	{
+		size_ = init.size();
+		std::copy(init.begin(), init.end(), begin());
+		return *this;
 	}
 
 	T& operator[](size_t i)
@@ -188,13 +223,14 @@ public:
 			reserve(size_ * 2);
 		}
 		ptr_[size_++] = std::move(value);
-    }
-
+	}
 
 	void pop_back() 
 	{
 		if (size_ == 0)
+		{
 			throw(std::runtime_error("Empty vector"));
+		}
 		allocator_.destroy(ptr_ + --size_);
 	}
 
@@ -206,6 +242,11 @@ public:
 	size_t size() const
 	{
 		return size_;
+	}
+
+	size_t capacity() const
+	{
+		return capacity_;
 	}
 
 	void clear()
@@ -247,7 +288,9 @@ public:
 		{
 			reserve(new_size);
 			for (size_t i = size_; i < new_size; ++i)
+			{
 				allocator_.construct(ptr_ + i);
+			}
 		}
 		size_ = new_size;
 	}
@@ -265,11 +308,6 @@ public:
 			ptr_ = tmp;
 			capacity_ = new_capacity;
 		}
-	}
-
-	size_t capacity() const
-	{
-		return capacity_;
 	}
 
 	~Vector()

@@ -1,4 +1,4 @@
-CFLAGS = -c -Wall -Werror -std=c++17
+CFLAGS = -c -Wall -Werror -std=c++1z
 
 all: my_prog
 
