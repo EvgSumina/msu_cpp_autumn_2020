@@ -4,27 +4,33 @@
 
 int main()
 {
-	Vector<int> my_vector = {1, 1, 3};
-	std::vector<int> vec = {1, 1, 3};
-	
-	assert (my_vector.size() == vec.size());
+	Vector<int> my_vector;
+	Vector<int> vector;
 
-	for (size_t i = 0; i < vec.size(); i++) 
+	for (int i = 0; i < 3; i++)
 	{
-		assert(vec[i] == my_vector[i]);
+		my_vector.push_back(1);
+		vector.push_back(1);
 	}
-
+	my_vector.push_back(3);
+	vector.push_back(3);
+	
+	assert (my_vector.size() == vector.size());
+	for (size_t i = 0; i < vector.size(); i++) 
+	{
+		assert(vector[i] == my_vector[i]);
+	}
 
 	my_vector.pop_back();
 	my_vector.push_back(1);
-	vec.pop_back();
-	vec.push_back(1);
+	vector.pop_back();
+	vector.push_back(1);
 
-	assert (my_vector.size() == vec.size());
+	assert (my_vector.size() == vector.size());
 
-	for (size_t i = 0; i < vec.size(); i++) 
+	for (size_t i = 0; i < vector.size(); i++) 
 	{
-		assert(vec[i] == my_vector[i]);
+		assert(vector[i] == my_vector[i]);
 	}
 
 	for (auto i = my_vector.begin(); i != my_vector.end(); ++i) 
@@ -36,10 +42,27 @@ int main()
 	{
 		assert(*i == 1);
 	}
+
+	Vector <int> first_vec = my_vector;
+	assert(first_vec.size() == my_vector.size());
+	assert(first_vec.capacity() == my_vector.capacity());
+	for (int i = 0; i < 3; i++)
+	{
+		assert(first_vec[i] == my_vector[i]);
+	}
+	
+	Vector <int> second_vec;
+	second_vec = my_vector;
+	assert(second_vec.size() == my_vector.size());
+	assert(second_vec.capacity() == my_vector.capacity());
+	for (int i = 0; i < 3; i++)
+	{
+		assert(my_vector[i] == second_vec[i]);
+	}
 	
 	my_vector.clear(); 
-	vec.clear();
-	assert(my_vector.size() == vec.size());
+	vector.clear();
+	assert(my_vector.size() == vector.size());
 
 	std::cout << "Success!!!" << std::endl;
 	return 0;

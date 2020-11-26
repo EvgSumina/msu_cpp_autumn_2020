@@ -18,17 +18,6 @@ public:
 	{
 		delete[] (pointer);
 	}
-
-	template <class... Args>
-	void construct(T *ptr, Args &&... args)
-	{
-		new (ptr) T(std::forward<Args>(args)...);
-	}
-
-	void destroy(T *ptr)
-	{
-		ptr -> ~T();
-	}
 };
 
 
@@ -121,59 +110,48 @@ class Vector
 {
 public:
 
-	Vector(): allocator_(), ptr_(nullptr), size_(0), capacity_(0)
+	Vector(): allocator_(), ptr_(allocator_.allocate(1)), size_(0), capacity_(1)
 	{}
 
-	Vector(const Vector<T>& other): allocator_(), ptr_(allocator_.allocate(other.size_)), capacity_(other.size_)
+	Vector(const Vector<T>& other): allocator_(), size_(other.size_), capacity_(other.capacity_)
 	{
-		for (size_ = 0; size_ < other.size_; ++size_) 
-		{
-			allocator_.construct(ptr_ + size_, other.ptr_[size_]);
-		}
+		ptr_ = allocator_.allocate(other.capacity_);
+		std::copy(other.ptr_, other.ptr_ + capacity_, ptr_);
 	}
 
 	Vector(Vector&& other): size_(other.size()), capacity_(other.capacity()) 
 	{
+		ptr_ = other.ptr_;
+		other.ptr_ = nullptr;
+		other.capacity_ = 0;
 		other.size_ = 0;
-		other.capacity_ = 0;                                                  
-		ptr_ = allocator_.allocate(capacity_);
-		std::move(other.begin(), other.end(), begin());
-	}
-
-	Vector(std::initializer_list<T> init): allocator_(), ptr_(allocator_.allocate(init.size())), size_(0), capacity_(init.size())
-	{
-		for (const T& value: init) 
-		{
-			allocator_.construct(ptr_ + size_++, std::move(value));
-		}
 	}
 
 	Vector& operator=(const Vector& other) 
 	{
-		this -> ~Vector();
+		if (this == &other)
+			return *this;
+		if (ptr_)
+		{
+			allocator_.deallocate(ptr_, capacity_);
+		}
 		size_ = other.size();
 		capacity_ = other.capacity();
 		ptr_ = allocator_.allocate(capacity_);
-		std::copy(other.begin(), other.end(), begin());
+		std::copy(other.ptr_, other.ptr_ + capacity_, ptr_);
 		return *this;
 	}
 
-	Vector& operator=(const Vector&& other) 
+	Vector& operator=(Vector&& other) 
 	{
-		this -> ~Vector();
-		size_ = other.size();
-		capacity_ = other.capacity();
-		ptr_ = allocator_.allocate(capacity_);
-		std::move(other.begin(), other.end(), begin());
+		if (this == &other)
+			return *this;
+		ptr_ = other.ptr_;
+		size_ = std::move(other.size_);
+		capacity_ = std::move(other.capacity_);
+		other.ptr_ = nullptr;
 		other.size_ = 0;
 		other.capacity_ = 0;
-		return *this;
-	}
-
-	Vector& operator=(std::initializer_list<T> init) 
-	{
-		size_ = init.size();
-		std::copy(init.begin(), init.end(), begin());
 		return *this;
 	}
 
@@ -207,22 +185,13 @@ public:
 		this->push_back(T(std::forward<ArgsT>(args)...));
 	}
 
-	void push_back(const T& value) 
-	{
-		if (size_ >= capacity_)
-		{
-			reserve(size_ * 2);
-		}
-		allocator_.construct(ptr_ + size_++, value);
-	}
-
 	void push_back(T&& value)
 	{
-		if (size_ >= capacity_)
+		if (size_ == capacity_)
 		{
-			reserve(size_ * 2);
+			this -> reserve(size_ * 2);
 		}
-		ptr_[size_++] = std::move(value);
+		ptr_[size_++] = value;
 	}
 
 	void pop_back() 
@@ -231,7 +200,7 @@ public:
 		{
 			throw(std::runtime_error("Empty vector"));
 		}
-		allocator_.destroy(ptr_ + --size_);
+		size_--;
 	}
 
 	bool empty() const 
@@ -251,10 +220,7 @@ public:
 
 	void clear()
 	{
-		for (; size_ > 0;)
-		{
-			allocator_.destroy(ptr_ + --size_);
-		}
+		size_ = 0;
 	}
 
 	Iterator<T> begin()
@@ -279,18 +245,9 @@ public:
 
 	void resize(size_t new_size)
 	{
-		if (new_size < size_)
+		if (new_size > size_)
 		{
-			for (size_t i = new_size; i < size_; ++i)
-				allocator_.destroy(ptr_ + i);
-		}
-		else if (new_size > size_)
-		{
-			reserve(new_size);
-			for (size_t i = size_; i < new_size; ++i)
-			{
-				allocator_.construct(ptr_ + i);
-			}
+			this  -> reserve(new_size);
 		}
 		size_ = new_size;
 	}
@@ -300,11 +257,12 @@ public:
 		if (new_capacity > capacity_)
 		{
 			T* tmp = allocator_.allocate(new_capacity);
-			for (size_t i = 0; i < size_; ++i)
-				allocator_.construct(tmp + i, ptr_[i]);
-			for (size_t i = 0; i < size_; ++i)
-				allocator_.destroy(ptr_ + i);
-			allocator_.deallocate(ptr_, capacity_);
+			if (ptr_)
+			{
+				for (size_t i = 0; i < size_; ++i)
+					tmp[i] = ptr_[i];
+				allocator_.deallocate(ptr_, capacity_);
+			}
 			ptr_ = tmp;
 			capacity_ = new_capacity;
 		}
@@ -312,11 +270,8 @@ public:
 
 	~Vector()
 	{
-		for (size_t i = 0; i < size_; ++i)
-		{
-			allocator_.destroy(ptr_ + i);
-		}
-		allocator_.deallocate(ptr_, capacity_);
+		if (ptr_)
+			allocator_.deallocate(ptr_, capacity_);
 	}
 
 private:
