@@ -39,7 +39,7 @@ public:
 					}
 					else
 					{
-						if (!is_working)
+						if (is_working)
 							thread_check.wait(lock);
 						else
 							break;

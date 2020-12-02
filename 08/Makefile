@@ -6,7 +6,7 @@ test:
 	./my_prog
 
 my_prog: tests.o
-	g++ -o my_prog tests.o
+	g++ -o my_prog tests.o -lpthread
 
 tests.o: tests.cpp thread_pool.hpp
 	g++ $(CFLAGS) tests.cpp

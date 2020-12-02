@@ -14,7 +14,7 @@ int main()
 
 	auto task2 = pool.exec([]() { return 1; });
 	task2.get();
-	
-	std::cout << "Success" << std::endl;
+
+	std::cout << "Success!" << std::endl;
 	return 0;
 }
