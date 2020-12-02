@@ -1,14 +1,12 @@
 #include "thread_pool.hpp"
 #include <iostream>
 
-struct A {
-	int a = 3;
-};
+struct A {};
 
 void foo(const A&) {}
 
-int main() {
-
+int main() 
+{
 	ThreadPool pool(8);
 
 	auto task1 = pool.exec(foo, A());
