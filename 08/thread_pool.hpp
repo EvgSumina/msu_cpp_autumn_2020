@@ -30,7 +30,8 @@ public:
 				while(true)
 				{
 					unique_lock <mutex> lock(queue_locker);
-					if (!task_queue.empty())
+					thread_check.wait(lock, [this] { return !is_working || !task_queue.empty();});
+					if (!task_queue.empty() || is_working)
 					{
 						function <void()> task = move(task_queue.front());
 						task_queue.pop();
@@ -39,12 +40,8 @@ public:
 					}
 					else
 					{
-						if (is_working)
-							thread_check.wait(lock);
-						else
-							break;
+						return;
 					}
-					
 				}
 			});
 		}
@@ -56,9 +53,14 @@ public:
 		using result_type = decltype(func(args...));
 		auto future_task = make_shared<packaged_task<result_type()>>(packaged_task<result_type()>(move(bind(func, args...))));
 		unique_lock <mutex> lock(queue_locker);
-		task_queue.emplace([future_task](){ (*future_task)(); });
-		thread_check.notify_one();
-		return future_task->get_future();
+		if (is_working)
+		{
+			task_queue.emplace([future_task](){ (*future_task)(); });
+			thread_check.notify_one();
+			return future_task->get_future();
+		}
+		else
+			throw runtime_error("Thread pool was terminated");
 	}
 
 	~ThreadPool()
