@@ -53,14 +53,10 @@ public:
 		using result_type = decltype(func(args...));
 		auto future_task = make_shared<packaged_task<result_type()>>(packaged_task<result_type()>(move(bind(func, args...))));
 		unique_lock <mutex> lock(queue_locker);
-		if (is_working)
-		{
-			task_queue.emplace([future_task](){ (*future_task)(); });
-			thread_check.notify_one();
-			return future_task->get_future();
-		}
-		else
-			throw runtime_error("Thread pool was terminated");
+		task_queue.emplace([future_task](){ (*future_task)(); });
+		lock.unlock();
+		thread_check.notify_one();
+		return future_task->get_future();
 	}
 
 	~ThreadPool()

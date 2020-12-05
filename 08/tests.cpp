@@ -27,7 +27,7 @@ int main()
 	task2.get();
 
 	ThreadPool new_pool(NUM_THREADS);
-	vector<int> vect(10000, 1);
+	vector<int> vect(1000000, 1);
 	vector<future<int>> futures;
 
 	for (size_t i = 0; i < vect.size(); i += vect.size() / NUM_THREADS)
@@ -38,6 +38,6 @@ int main()
 		thread_sum += elem.get();
 
 	assert(sum(vect, 0, vect.size()) == thread_sum);
-	std::cout << "Success!" << std::endl;
+	std::cout << "Success!!!" << std::endl;
 	return 0;
 }
